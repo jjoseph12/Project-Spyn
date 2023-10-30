@@ -87,11 +87,6 @@ while 1
                 car_state = -1;
             end
 
-            if(touched)
-                disp("Touch was sensed.");
-                car_state = 2;
-            end
-
         
         case 1 % Red detected case
             brick.StopMotor('AD');
@@ -115,7 +110,7 @@ while 1
     end % car_state switch end
      
     if(key == 'p')
-        brick.StopMotors('ACD');
+        brick.StopMotor('ABD');
         break;
     end
 
