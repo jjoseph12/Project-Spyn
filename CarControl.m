@@ -57,9 +57,9 @@ while 1
                 case 'backspace'
                     brick.StopMotor('AD');
                 case 'c'
-                    brick.MoveMotor('C', speed_claw_open);
+                    brick.MoveMotor('C', claw_speed_open);
                 case 'z' 
-                    brick.MoveMotor('C', speed_claw_close);
+                    brick.MoveMotor('C', claw_speed_close);
                 case 'p'
                     break;
             end % key switch end
@@ -93,27 +93,12 @@ while 1
             end
 
         
-
         case 1 % Red detected case
             brick.StopMotor('AD');
             pause(1); % Wait 1 second before resuming
             car_state = 0; 
-
-        case 2 % Touch sensed case
-            brick.MoveMotor('AD', speed_backwards); % Back away from the wall
-            timer_reverse = tic;
-            if(toc(timer_reverse) >= reverse_time)
-                brick.MoveMotor('D', speed_turnspeed); % Turn right
-                brick.StopMotor('A'); % Turn right
-                timer_turn = tic;
-                if(toc(timer_turn) >= turn_timer)
-                    car_state = 0;
-                    timer_reverse = 0;
-                    timer_turn = 0;
-                end
-            end
         
-        case 3 % Ultrasonic sensor - wall close case
+        case 2 % Ultrasonic sensor - wall close case
             brick.MoveMotor('AD', speed_backwards); % Back away from the wall
             timer_reverse = tic;
             if(toc(timer_reverse) >= reverse_time)
@@ -127,9 +112,6 @@ while 1
                 end
             end
 
-            
-            
-        
     end % car_state switch end
      
     if(key == 'p')
