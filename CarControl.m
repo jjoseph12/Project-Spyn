@@ -1,9 +1,15 @@
 % Car Variables
-speed_forward = 80;
-speed_backward = -80;
-speed_turnspeed = 80;
-claw_speed_open = 40;
-claw_speed_close = -40;
+speed_right_f = 57*1.4;
+speed_left_f = 63.5*1.4;
+speed_right_b = -57*1.4;
+speed_left_b = -63.5*1.4;
+speed_right_t = 57*1.4;
+speed_left_t = 63.5*1.4;
+claw_speed_open = 50;
+claw_speed_close = -50;
+% f = forward
+% b = backward
+% t = turning
 
 % Assigned Ports
 color_sensor = 1;
@@ -20,8 +26,6 @@ car_state = 0;
 threshold = 50; % Distance threshold for car to act upon
 
 % Timers
-timer_reverse = 0;
-timer_turn = 0;
 reverse_time = 1;
 turn_time = 1;
 
@@ -42,74 +46,78 @@ while 1
     switch car_state
 
         case -1 % Manual control
-            disp("!!! Manual control activated !!!");
+            brick.StopAllMotors();
             switch key
                 case 'w' % Move forward
-                    brick.MoveMotor('AD', speed_forward);
+                    brick.MoveMotor('D', speed_right_forward);
+                    brick.MoveMotor('A', speed_left_forward);
                 case 's' % Move backward
-                    brick.MoveMotor('AD', speed_backward);
+                    brick.MoveMotor('D', speed_right_backward);
+                    brick.MoveMotor('A', speed_left_backward);
                 case 'a' % Turn left
-                    brick.MoveMotor('A', speed_turnspeed);
-                    brick.StopMotor('D');
-                case 'd' % Turn right
-                    brick.MoveMotor('D', speed_turnspeed);
+                    brick.MoveMotor('D', speed_left_turnspeed);
                     brick.StopMotor('A');
+                case 'd' % Turn right
+                    brick.MoveMotor('A', speed_right_turnspeed);
+                    brick.StopMotor('D');
                 case 'backspace'
-                    brick.StopMotor('AD');
+                    brick.StopMotor('ABD');
                 case 'c'
-                    brick.MoveMotor('C', claw_speed_open);
+                    brick.MoveMotor('B', claw_speed_open);
                 case 'z' 
-                    brick.MoveMotor('C', claw_speed_close);
+                    brick.MoveMotor('B', claw_speed_close);
                 case 'p'
-                    break;
+                    car_state = 0;
             end % key switch end
             
         case 0 % Move forward and sense
-            brick.MoveMotor('AD', speed_forward); % Automatically moves forward
-  
+            brick.MoveMotor('D', speed_right_forward);
+            brick.MoveMotor('A', speed_left_forward);
+            
+            % Information gathering using sensors
             distance = brick.UltrasonicDist(ultrasonic_sensor);
             color = brick.ColorCode(color_sensor);
             touched = brick.TouchPressed(touch_sensor);
             
             if(color == 5) % Color is Red
                 disp("Red detected.");
-                car_state = 1;
-
+                brick.StopMotor('AD');
+                pause(1); % Wait 1 second before resuming
             elseif(color == 4 && yellow_found == false) % Color is Yellow and the passenger HASN'T been picked up
                 yellow_found = true;
                 brick.StopMotors('AD');
                 disp("Yellow detected.");
+                disp("!!! Manual control activated !!!");
                 car_state = -1;
-
             elseif(color == 2 && yellow_found == true) % Color is Blue and the passenger HAS been picked up
                 brick.StopMotors('AD');
                 disp("Blue detected.");
+                disp("!!! Manual control activated !!!");
                 car_state = -1;
             end
-
-        
-        case 1 % Red detected case
-            brick.StopMotor('AD');
-            pause(1); % Wait 1 second before resuming
-            car_state = 0; 
-        
-        case 2 % Ultrasonic sensor - wall close case
-            brick.MoveMotor('AD', speed_backwards); % Back away from the wall
-            timer_reverse = tic;
-            if(toc(timer_reverse) >= reverse_time)
-                brick.MoveMotor('D', speed_turnspeed); % Turn right
-                brick.StopMotor('A'); % Turn right
-                timer_turn = tic;
-                if(toc(timer_turn) >= turn_timer)
-                    car_state = 0;
-                    timer_reverse = 0;
-                    timer_turn = 0;
-                end
+            
+            % Turn right if wall isn't sensed and the touch sensor isn't
+            % pressed
+            if(distance >= threshold && ~pressed) 
+                brick.MoveMotor('D', speed_right_t);
+                brick.StopMotor('A');
+                pause(turn_time);
             end
-
+            
+            % Turn left if wall is sensed and the touch sensor is pressed
+            if(pressed && distance < threshold)
+                brick.MoveMotor('D', speed_right_backward);
+                brick.MoveMotor('A', speed_left_backward); % Back away from the wall
+                pause(reverse_time); % Backing away from the wall
+    
+                brick.MoveMotor('D', speed_right_t); 
+                brick.StopMotor('A'); % turning left
+                pause(turn_time); % Waiting for turn to complete 
+            end
+            
     end % car_state switch end
-     
-    if(key == 'p')
+
+    if(key == 'm') % Different key from ending manual control - lol
         brick.StopMotor('ABD');
         break;
     end
