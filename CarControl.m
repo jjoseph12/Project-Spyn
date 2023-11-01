@@ -12,15 +12,14 @@ claw_speed_close = -50;
 % t = turning
 
 % Assigned Ports
-color_sensor = 1;
-ultrasonic_sensor = 2;
+color_sensor = 2;
+ultrasonic_sensor = 1;
 touch_sensor = 3;
 % % A is the left motor
 % % D is the right motor
-% % C is the claw motor
+% % B is the claw motor
 
 % Booleans and States
-manual_control = false;
 yellow_found = false;
 car_state = 0;
 threshold = 50; % Distance threshold for car to act upon
@@ -68,9 +67,9 @@ while 1
                     brick.MoveMotor('B', claw_speed_close);
                 case 'p'
                     car_state = 0;
-            end % key switch end
+            end % key switch end, manual control end
             
-        case 0 % Move forward and sense
+        case 0 % Move forward and use sensors
             brick.MoveMotor('D', speed_right_forward);
             brick.MoveMotor('A', speed_left_forward);
             
@@ -79,6 +78,7 @@ while 1
             color = brick.ColorCode(color_sensor);
             touched = brick.TouchPressed(touch_sensor);
             
+            % Sensor Information processing
             if(color == 5) % Color is Red
                 disp("Red detected.");
                 brick.StopMotor('AD');
@@ -117,8 +117,8 @@ while 1
             
     end % car_state switch end
 
-    if(key == 'm') % Different key from ending manual control - lol
-        brick.StopMotor('ABD');
+    if(key == 'm') % Different kill switch key to end program
+        brick.StopAllMotors();
         break;
     end
 
