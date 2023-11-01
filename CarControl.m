@@ -12,8 +12,8 @@ claw_speed_close = -50;
 % t = turning
 
 % Assigned Ports
-color_sensor = 2;
 ultrasonic_sensor = 1;
+color_sensor = 2;
 touch_sensor = 3;
 % % A is the left motor
 % % D is the right motor
@@ -26,10 +26,10 @@ threshold = 50; % Distance threshold for car to act upon
 
 % Timers
 reverse_time = 1;
-turn_time = 1;
+turn_time = 0.4;
 
 % Color Sensor setup
-brick.setColorMode(color_sensor, 2);
+brick.SetColorMode(color_sensor, 2);
 % % Default = 0
 % % Blue = 2
 % % Yellow = 4
@@ -76,7 +76,7 @@ while 1
             % Information gathering using sensors
             distance = brick.UltrasonicDist(ultrasonic_sensor);
             color = brick.ColorCode(color_sensor);
-            touched = brick.TouchPressed(touch_sensor);
+            pressed = brick.TouchPressed(touch_sensor);
             
             % Sensor Information processing
             if(color == 5) % Color is Red
@@ -85,12 +85,12 @@ while 1
                 pause(1); % Wait 1 second before resuming
             elseif(color == 4 && yellow_found == false) % Color is Yellow and the passenger HASN'T been picked up
                 yellow_found = true;
-                brick.StopMotors('AD');
+                brick.StopMotor('AD');
                 disp("Yellow detected.");
                 disp("!!! Manual control activated !!!");
                 car_state = -1;
             elseif(color == 2 && yellow_found == true) % Color is Blue and the passenger HAS been picked up
-                brick.StopMotors('AD');
+                brick.StopMotor('AD');
                 disp("Blue detected.");
                 disp("!!! Manual control activated !!!");
                 car_state = -1;
@@ -99,8 +99,8 @@ while 1
             % Turn right if wall isn't sensed and the touch sensor isn't
             % pressed
             if(distance >= threshold && ~pressed) 
-                brick.MoveMotor('D', speed_right_t);
-                brick.StopMotor('A');
+                brick.MoveMotor('A', speed_left_t);
+                brick.StopMotor('D');
                 pause(turn_time);
             end
             
@@ -119,6 +119,7 @@ while 1
 
     if(key == 'm') % Different kill switch key to end program
         brick.StopAllMotors();
+        disp("Stopping program.");
         break;
     end
 
