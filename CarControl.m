@@ -29,6 +29,8 @@ reverse_time = 0.5;
 left_turn_time = 0.42;
 right_turn_time = 0.6;
 turn_cooldown = 1;
+beep_timer = tic;
+beep_cooldown = 3;
 
 % Color Sensor setup
 brick.SetColorMode(color_sensor, 2);
@@ -91,10 +93,15 @@ while 1
                 brick.StopMotor('AD');
                 pause(1); % Wait 1 second before resuming
             elseif(color == 3 || color == 2) % Color is Green or Blue
-                brick.StopMotor('AD');
-                for i = 1:3
-                    brick.beep();
-                    pause(0.2);
+                if(toc(beep_timer) < beep_cooldown)
+                    brick.StopMotor('AD');
+                    for i = 1:3
+                        brick.beep();
+                        pause(0.2);
+                    end
+                    beep_timer = tic;
+                else
+                    beep_timer = 0;
                 end
             elseif(color == 4 && yellow_found == false) % Color is Yellow and the passenger HASN'T been picked up
                 yellow_found = true;
