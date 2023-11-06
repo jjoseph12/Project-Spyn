@@ -1,10 +1,10 @@
 % Car Variables
-speed_right_f = 57*1.4;
 speed_left_f = 63.5*1.4;
-speed_right_b = -57*1.4;
 speed_left_b = -63.5*1.4;
-speed_right_t = 57*1.4;
 speed_left_t = 63.5*1.4;
+speed_right_f = 57*1.4;
+speed_right_b = -57*1.4;
+speed_right_t = 57*1.4;
 claw_speed_open = 50;
 claw_speed_close = -50;
 % f = forward
@@ -26,12 +26,13 @@ threshold = 50; % Distance threshold for car to act upon
 
 % Timers
 reverse_time = 1;
-turn_time = 0.4;
+turn_time = 0.42;
 
 % Color Sensor setup
 brick.SetColorMode(color_sensor, 2);
 % % Default = 0
 % % Blue = 2
+% % Greed = 3
 % % Yellow = 4
 % % Red = 5
 
@@ -48,16 +49,16 @@ while 1
             brick.StopAllMotors();
             switch key
                 case 'w' % Move forward
-                    brick.MoveMotor('D', speed_right_forward);
-                    brick.MoveMotor('A', speed_left_forward);
+                    brick.MoveMotor('D', speed_right_f);
+                    brick.MoveMotor('A', speed_left_f);
                 case 's' % Move backward
-                    brick.MoveMotor('D', speed_right_backward);
-                    brick.MoveMotor('A', speed_left_backward);
+                    brick.MoveMotor('D', speed_right_b);
+                    brick.MoveMotor('A', speed_left_b);
                 case 'a' % Turn left
-                    brick.MoveMotor('D', speed_left_turnspeed);
+                    brick.MoveMotor('D', speed_right_t);
                     brick.StopMotor('A');
                 case 'd' % Turn right
-                    brick.MoveMotor('A', speed_right_turnspeed);
+                    brick.MoveMotor('A', speed_left_t);
                     brick.StopMotor('D');
                 case 'backspace'
                     brick.StopMotor('ABD');
@@ -66,6 +67,8 @@ while 1
                 case 'z' 
                     brick.MoveMotor('B', claw_speed_close);
                 case 'p'
+                    car_state = 0;
+                case '0'
                     car_state = 0;
             end % key switch end, manual control end
             
@@ -83,6 +86,12 @@ while 1
                 disp("Red detected.");
                 brick.StopMotor('AD');
                 pause(1); % Wait 1 second before resuming
+            elseif(color == 3) % Color is Green
+                brick.StopMotor('AD');
+                for i = 1:3
+                    brick.beep();
+                    pause(0.2);
+                end
             elseif(color == 4 && yellow_found == false) % Color is Yellow and the passenger HASN'T been picked up
                 yellow_found = true;
                 brick.StopMotor('AD');
@@ -92,6 +101,10 @@ while 1
             elseif(color == 2 && yellow_found == true) % Color is Blue and the passenger HAS been picked up
                 brick.StopMotor('AD');
                 disp("Blue detected.");
+                for i = 1:2
+                    brick.beep();
+                    pause(0.2);
+                end
                 disp("!!! Manual control activated !!!");
                 car_state = -1;
             end
@@ -117,7 +130,7 @@ while 1
             
     end % car_state switch end
 
-    if(key == 'm') % Different kill switch key to end program
+    if(key == 'm' || key == '0') % Different kill switch key to end program
         brick.StopAllMotors();
         disp("Stopping program.");
         break;
