@@ -27,6 +27,7 @@ threshold = 50; % Distance threshold for car to act upon
 % Timers
 reverse_time = 1;
 turn_time = 0.42;
+turn_cooldown = 0.5;
 
 % Color Sensor setup
 brick.SetColorMode(color_sensor, 2);
@@ -48,17 +49,19 @@ while 1
         case -1 % Manual control
             brick.StopAllMotors();
             switch key
+                % '/1.4' on all speeds to move slower in manual control
+                % hopefully giving us better control in manual
                 case 'w' % Move forward
-                    brick.MoveMotor('D', speed_right_f);
-                    brick.MoveMotor('A', speed_left_f);
+                    brick.MoveMotor('D', speed_right_f/1.4);
+                    brick.MoveMotor('A', speed_left_f/1.4);
                 case 's' % Move backward
-                    brick.MoveMotor('D', speed_right_b);
-                    brick.MoveMotor('A', speed_left_b);
+                    brick.MoveMotor('D', speed_right_b/1.4);
+                    brick.MoveMotor('A', speed_left_b/1.4);
                 case 'a' % Turn left
-                    brick.MoveMotor('D', speed_right_t);
+                    brick.MoveMotor('D', speed_right_t/1.4);
                     brick.StopMotor('A');
                 case 'd' % Turn right
-                    brick.MoveMotor('A', speed_left_t);
+                    brick.MoveMotor('A', speed_left_t/1.4);
                     brick.StopMotor('D');
                 case 'backspace'
                     brick.StopMotor('ABD');
@@ -112,9 +115,13 @@ while 1
             % Turn right if wall isn't sensed and the touch sensor isn't
             % pressed
             if(distance >= threshold && ~pressed) 
+                pause(0.2); % Go past the wall
                 brick.MoveMotor('A', speed_left_t);
                 brick.StopMotor('D');
-                pause(turn_time);
+                pause(turn_time); % Turn right
+                brick.MoveMotor('D', speed_right_forward);
+                brick.MoveMotor('A', speed_left_forward);
+                pause(turn_cooldown); % Moving foward and not instantly turning after first turn
             end
             
             % Turn left if wall is sensed and the touch sensor is pressed
@@ -122,7 +129,7 @@ while 1
                 brick.MoveMotor('D', speed_right_backward);
                 brick.MoveMotor('A', speed_left_backward); % Back away from the wall
                 pause(reverse_time); % Backing away from the wall
-    
+                
                 brick.MoveMotor('D', speed_right_t); 
                 brick.StopMotor('A'); % turning left
                 pause(turn_time); % Waiting for turn to complete 
