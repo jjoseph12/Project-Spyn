@@ -92,30 +92,17 @@ while 1
                 disp("Red detected.");
                 brick.StopMotor('AD');
                 pause(1); % Wait 1 second before resuming
-            elseif(color == 3 || color == 2) % Color is Green or Blue
-                if(toc(beep_timer) < beep_cooldown)
-                    brick.StopMotor('AD');
-                    for i = 1:3
-                        brick.beep();
-                        pause(0.2);
-                    end
-                    beep_timer = tic;
-                else
-                    beep_timer = 0;
-                end
+
             elseif(color == 4 && yellow_found == false) % Color is Yellow and the passenger HASN'T been picked up
                 yellow_found = true;
                 brick.StopMotor('AD');
                 disp("Yellow detected.");
                 disp("!!! Manual control activated !!!");
                 car_state = -1;
+
             elseif(color == 2 && yellow_found == true) % Color is Blue and the passenger HAS been picked up
                 brick.StopMotor('AD');
                 disp("Blue detected.");
-                for i = 1:2
-                    brick.beep();
-                    pause(0.2);
-                end
                 disp("!!! Manual control activated !!!");
                 car_state = -1;
             end
