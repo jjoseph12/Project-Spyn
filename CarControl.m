@@ -29,8 +29,6 @@ reverse_time = 0.5;
 left_turn_time = 0.42;
 right_turn_time = 0.6;
 turn_cooldown = 1;
-beep_timer = tic;
-beep_cooldown = 3;
 
 % Color Sensor setup
 brick.SetColorMode(color_sensor, 2);
