@@ -34,7 +34,7 @@ turn_cooldown = 1;
 brick.SetColorMode(color_sensor, 2);
 % % Default = 0
 % % Blue = 2
-% % Greed = 3
+% % Green = 3
 % % Yellow = 4
 % % Red = 5
 
@@ -44,7 +44,7 @@ InitKeyboard();
 
 % Automatic Navigation
 while 1
-    pause(0.1);
+    pause(0.2);
     switch car_state
 
         case -1 % Manual control
