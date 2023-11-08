@@ -67,7 +67,7 @@ while 1
                     brick.MoveMotor('A', speed_left_t/1.4);
                     brick.StopMotor('D');
                 case 'backspace'
-                    brick.StopMotor('ABD');
+                    brick.StopMotor('ABD', 'Brake');
                 case 'c'
                     brick.MoveMotor('B', claw_speed_open);
                 case 'z' 
@@ -90,7 +90,7 @@ while 1
             % Sensor Information processing
             if(color == 5) % Color is Red
                 disp("Red detected.");
-                brick.StopMotor('AD');
+                brick.StopMotor('AD', 'Brake');
                 pause(1); % Wait 1 second before resuming
 
             elseif(color == 4 && yellow_found == false) % Color is Yellow and the passenger HASN'T been picked up
@@ -110,11 +110,11 @@ while 1
             % Turn right if wall isn't sensed and the touch sensor isn't
             % pressed
             if(distance >= threshold && ~pressed)
-                brick.StopMotor('AD');
-                pause(0.5);
+                disp("No press and Wall not detected - turning right");
+                pause(0.25);
+                brick.StopMotor('AD', 'Brake');
                 brick.MoveMotor('A', speed_left_t);
-                brick.StopMotor('D');
-                pause(right_turn_time); % Turn right
+                pause(right_turn_time); % Turning right
                 brick.MoveMotor('D', speed_right_f);
                 brick.MoveMotor('A', speed_left_f);
                 pause(turn_cooldown); % Moving forward and not instantly turning after first turn
@@ -122,15 +122,15 @@ while 1
             
             % Turn left if wall is sensed and the touch sensor is pressed
             if(pressed && distance < threshold)
-                brick.StopMotor('AD');
-                pause(0.5);
+                disp("Press and Wall detected - turning left");
+                brick.StopMotor('AD', 'Brake');
+                pause(0.2);
                 brick.MoveMotor('D', speed_right_b);
-                brick.MoveMotor('A', speed_left_b); % Back away from the wall
+                brick.MoveMotor('A', speed_left_b); 
                 pause(reverse_time); % Backing away from the wall
-                
-                brick.MoveMotor('D', speed_right_t); 
-                brick.StopMotor('A'); % turning left
-                pause(left_turn_time); % Waiting for turn to complete 
+                brick.StopMotor('AD', 'Brake');
+                brick.MoveMotor('D', speed_right_t); % Turning left
+                pause(left_turn_time); % Turn time
             end
             
     end % car_state switch end
