@@ -1,7 +1,7 @@
 % Car Variables
-speed_right = 63.5 * 1.4;
-speed_left = 57 * 1.4;
-speed_claw = 50;
+speed_right = -60;
+speed_left = -58.5;
+speed_claw = 5;
 
 % Assigned Ports
 ultrasonic_sensor = 1;
@@ -19,8 +19,8 @@ threshold = 50;
 % Timers
 time_reverse = 0.5;
 time_turn_cooldown = 1;
-time_turn_left = 0.6;
-time_turn_right = 0.42;
+time_turn_left = 0.8;
+time_turn_right = 0.75;
 
 % Color Sensor setup
 brick.SetColorMode(color_sensor, 2);
@@ -54,15 +54,26 @@ while 1
                     brick.MoveMotor('D', speed_left);
                 case 'backspace'
                     brick.StopMotor('ABD');
-                case 'c'
+                case 'c' % Claw open
                     brick.MoveMotor('B', speed_claw);
-                case 'z'
+                case 'z' % Claw close
                     brick.MoveMotor('B', -speed_claw);
-                case 'p'
-                    car_state = 0;
-                case '0'
-                    car_state = 0;
+                case 'p' % Kill switch
+                    disp("Exiting manual control!");
+                    for i = 1:3
+                        pause(0.2);
+                        brick.beep();
+                    end
+                    car_state = 1;
+                case '0' % Kill switch
+                    disp("Exiting manual contro!");
+                    for i = 1:3
+                        pause(0.2);
+                        brick.beep();
+                    end
+                    car_state = 1;
             end
+        % End of Case -1
         
         case 0 % Automatic navigation
             brick.MoveMotor('A', speed_right);
@@ -84,10 +95,18 @@ while 1
                 disp("Yellow detected.");
                 disp("!!! Manual control activated !!!");
                 car_state = -1;
+                for i = 1:3
+                    pause(0.2);
+                    brick.beep();
+                end
             elseif(color == 2 && yellow_found == true)
                 brick.StopMotor('AD', 'Brake');
                 disp("Blue detected.")
                 disp("!!! Manual control activated !!!");
+                for i = 1:3
+                    pause(0.2);
+                    brick.beep();
+                end
                 car_state = -1;
             end
 
@@ -112,12 +131,21 @@ while 1
                 brick.MoveMotor('A', speed_right);
                 pause(time_turn_left);
             end
+        % End of Case 0
+
+        case 1 % Claw lowering automatically after end of manual control
+            brick.MoveMotor('B', -speed_claw);
+            pause(2);
+            car_state = 0;
+        % End of Case 1
+
     end
 
-    if(key == 'm' || key == '0')
+    if(key == 'm' || key == '0') % Kill Switch
         brick.StopAllMotors();
         disp("Stopping program");
         break;
     end
+
 end
 CloseKeyboard();
