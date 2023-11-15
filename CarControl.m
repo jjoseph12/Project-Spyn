@@ -89,6 +89,7 @@ while 1
                 disp("Red detected.");
                 brick.StopMotor('AD', 'Brake');
                 pause(1); % Wait 1 second before resuming
+                brick.beep();
             elseif(color == 4 && yellow_found == false)
                 yellow_found = true;
                 brick.StopMotor('AD', 'Brake');
@@ -116,6 +117,8 @@ while 1
                 brick.StopMotor('AD', 'Brake');
                 brick.MoveMotor('D', speed_left);
                 pause(time_turn_right); % Turning right
+                brick.StopMotor('D', 'Brake');
+                pause(0.2);
                 brick.MoveMotor('A', speed_right);
                 brick.MoveMotor('D', speed_left);
                 pause(time_turn_cooldown); % Cooldown to prevent a lot of turning
@@ -130,6 +133,8 @@ while 1
                 brick.StopMotor('AD', 'Brake');
                 brick.MoveMotor('A', speed_right);
                 pause(time_turn_left);
+                brick.MoveMotor('A', 'Brake');
+                pause(0.2);
             end
         % End of Case 0
 
