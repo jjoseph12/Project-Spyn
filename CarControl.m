@@ -1,7 +1,7 @@
 % Car Variables
-speed_right = -60;
-speed_left = -58.5;
-speed_claw = 5;
+speed_right = -40;
+speed_left = -38;
+speed_claw = 25;
 
 % Assigned Ports
 ultrasonic_sensor = 1;
@@ -19,8 +19,8 @@ threshold = 50;
 % Timers
 time_reverse = 0.5;
 time_turn_cooldown = 1;
-time_turn_left = 0.8;
-time_turn_right = 0.75;
+time_turn_left = 1;
+time_turn_right = 1.25;
 
 % Color Sensor setup
 brick.SetColorMode(color_sensor, 2);
@@ -34,6 +34,7 @@ brick.SetColorMode(color_sensor, 2);
 % Keyboard Control Setup
 global key; %#ok<GVMIS> %% blocks warning message
 InitKeyboard();
+brick.beep();
 
 % Navigation
 while 1
@@ -71,7 +72,7 @@ while 1
                         pause(0.2);
                         brick.beep();
                     end
-                    car_state = 1;
+                    break;
             end
         % End of Case -1
         
@@ -90,6 +91,9 @@ while 1
                 brick.StopMotor('AD', 'Brake');
                 pause(1); % Wait 1 second before resuming
                 brick.beep();
+                brick.MoveMotor('A', speed_right);
+                brick.MoveMotor('D', speed_left);
+                pause(0.5);
             elseif(color == 4 && yellow_found == false)
                 yellow_found = true;
                 brick.StopMotor('AD', 'Brake');
@@ -113,7 +117,7 @@ while 1
 
             if(distance >= threshold && pressed == false)
                 disp("No press and Wall not detected - turning right");
-                pause(0.25); % Buffer time to go past the wall
+                pause(0.5); % Buffer time to go past the wall
                 brick.StopMotor('AD', 'Brake');
                 brick.MoveMotor('D', speed_left);
                 pause(time_turn_right); % Turning right
@@ -136,6 +140,15 @@ while 1
                 brick.MoveMotor('A', 'Brake');
                 pause(0.2);
             end
+
+            if(key == 'a')
+                brick.StopMotor('D', 'Brake');
+                brick.MoveMotor('A', speed_right);
+            elseif(key == 'd')
+                brick.StopMotor('A', 'Brake');
+                brick.MoveMotor('D', speed_left);
+            end
+            
         % End of Case 0
 
         case 1 % Claw lowering automatically after end of manual control
@@ -146,7 +159,7 @@ while 1
 
     end
 
-    if(key == 'm' || key == '0') % Kill Switch
+    if key == 'm' || key == '0' % Kill Switch
         brick.StopAllMotors();
         disp("Stopping program");
         break;
