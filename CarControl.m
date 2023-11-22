@@ -17,7 +17,7 @@ car_state = 0;
 threshold = 50;
 
 % Timers
-time_reverse = 0.5;
+time_reverse = 1;
 time_turn_cooldown = 1;
 time_turn_left = 1;
 time_turn_right = 1.25;
