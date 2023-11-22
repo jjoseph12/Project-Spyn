@@ -18,7 +18,8 @@ threshold = 50;
 
 % Timers
 time_reverse = 1;
-time_turn_cooldown = 1;
+time_turn_cooldown = 1.5;
+timer_turn_cooldown = 0;
 time_turn_left = 1;
 time_turn_right = 1.25;
 
@@ -117,7 +118,7 @@ while 1
 
             if(distance >= threshold && pressed == false)
                 disp("No press and Wall not detected - turning right");
-                pause(0.5); % Buffer time to go past the wall
+                pause(0.8); % Buffer time to go past the wall
                 brick.StopMotor('AD', 'Brake');
                 brick.MoveMotor('D', speed_left);
                 pause(time_turn_right); % Turning right
@@ -125,8 +126,24 @@ while 1
                 pause(0.2);
                 brick.MoveMotor('A', speed_right);
                 brick.MoveMotor('D', speed_left);
-                pause(time_turn_cooldown); % Cooldown to prevent a lot of turning
-            
+                timer_turn_cooldown = tic; % Try to prevent car from ignoring red after turn
+                while 1
+                    pause(0.1);
+                    if(toc(timer_turn_cooldown) >= time_turn_cooldown)
+                        break;
+                    end
+                    color = brick.ColorCode(color_sensor);
+                    if(color == 5)
+                        brick.StopMotor('AD', 'Brake');
+                        pause(1);
+                        brick.beep();
+                        brick.MoveMotor('A', speed_right);
+                        brick.MoveMotor('D', speed_left);
+                        pause(0.5);
+                    end
+                end
+
+
             elseif(distance < threshold && pressed == true)
                 disp("Press and Wall detected - turning left");
                 brick.StopMotor('AD', 'Brake');
