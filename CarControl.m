@@ -116,7 +116,7 @@ while 1
                 car_state = -1;
             end
 
-            if(distance >= threshold && pressed == false)
+            if(distance > threshold && pressed == false)
                 disp("No press and Wall not detected - turning right");
                 pause(0.8); % Buffer time to go past the wall
                 brick.StopMotor('AD', 'Brake');
@@ -158,13 +158,29 @@ while 1
                 pause(0.2);
             end
 
-            if(key == 'a')
-                brick.StopMotor('D', 'Brake');
-                brick.MoveMotor('A', speed_right);
-            elseif(key == 'd')
+            % Keeping the car straight
+            if(distance >= 21 && distance <= 30)
                 brick.StopMotor('A', 'Brake');
                 brick.MoveMotor('D', speed_left);
+                pause(0.1);
+                brick.MoveMotor('A', speed_right);
+                pause(0.1);
+            elseif(distance <= 17 && distance >= 0)
+                brick.StopMotor('D', 'Brake');
+                brick.MoveMotor('A', speed_right);
+                pause(0.1);
+                brick.MoveMotor('D', speed_left);
+                pause(0.1);
             end
+
+            % if(key == 'a')
+            %     brick.StopMotor('D', 'Brake');
+            %     brick.MoveMotor('A', speed_right);
+            % elseif(key == 'd')
+            %     brick.StopMotor('A', 'Brake');
+            %     brick.MoveMotor('D', speed_left);
+            % end
+
             
         % End of Case 0
 
@@ -174,9 +190,9 @@ while 1
             car_state = 0;
         % End of Case 1
 
-    end
+    end % End of car_state switch
 
-    if key == 'm' || key == '0' % Kill Switch
+    if(key == 'm' || key == '0') % Kill Switch
         brick.StopAllMotors();
         disp("Stopping program");
         break;
