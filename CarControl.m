@@ -172,15 +172,6 @@ while 1
                 brick.MoveMotor('D', speed_left);
                 pause(0.1);
             end
-
-            % if(key == 'a')
-            %     brick.StopMotor('D', 'Brake');
-            %     brick.MoveMotor('A', speed_right);
-            % elseif(key == 'd')
-            %     brick.StopMotor('A', 'Brake');
-            %     brick.MoveMotor('D', speed_left);
-            % end
-
             
         % End of Case 0
 
